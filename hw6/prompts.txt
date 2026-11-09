@@ -1,0 +1,271 @@
+Prompt 1: Initial architecture and planning request
+I am developing a web-based image steganography application for a Security Engineering course.
+
+I want to use this project to practice developing a secure Python application primarily through an AI coding agent.
+
+## My initial design notes
+
+- Programming language: Python 3.12
+- Web framework: Flask
+- Image processing: Pillow
+- Frontend: HTML, CSS, and minimal JavaScript
+- Steganography algorithm: Least Significant Bit (LSB)
+- Initial image format: PNG
+- Initial payload format: UTF-8 text
+- Development environment: VS Code
+- Coding agent: GitHub Copilot Agent mode
+- Development port: 5000
+
+## Application functionality
+
+The application should provide two main features:
+
+1. Encoding:
+   - Allow a user to upload a PNG image.
+   - Allow the user to enter a text message.
+   - Hide the message in the image using LSB steganography.
+   - Allow the user to download the resulting PNG.
+
+2. Decoding:
+   - Allow a user to upload a previously encoded PNG.
+   - Detect whether the image contains a message encoded by this application.
+   - Extract and display the hidden message.
+
+## Technical requirements
+
+- Implement the LSB algorithm ourselves using Pillow.
+- Support UTF-8 text, including non-English characters.
+- Support RGB and RGBA images.
+- Preserve the original image dimensions and transparency.
+- Do not resize, rotate, or otherwise transform images.
+- Use a recognizable magic header to identify encoded images.
+- Store the message length in the encoded data.
+- Include a checksum to detect corrupted payloads.
+- Calculate available image capacity before encoding.
+- Reject messages that exceed the available capacity.
+
+## Security requirements
+
+- Restrict uploads to PNG images.
+- Validate image content rather than trusting filenames or extensions.
+- Enforce a 5 MB upload limit.
+- Enforce a maximum image dimension of 4000 × 4000 pixels.
+- Handle malformed images safely.
+- Protect against Pillow decompression-bomb attacks.
+- Process uploads in memory using BytesIO.
+- Do not save uploaded images or extracted messages to disk.
+- Never execute uploaded content.
+- Do not use uploaded filenames as filesystem paths.
+- Do not enable Flask debug mode.
+- Handle errors without exposing sensitive server information.
+
+Authentication is not required for the initial version because this is a local educational application.
+
+## Development instructions
+
+Before writing any code:
+
+1. Review my requirements.
+2. Identify missing requirements, potential design problems, and security concerns.
+3. Propose a project architecture and explain the responsibility of each file.
+4. Explain how the encoding and decoding algorithms will work.
+5. Explain how image capacity will be calculated.
+6. Identify the security tests that should be performed.
+7. Suggest improvements where appropriate.
+
+Do not create or modify any files yet. Wait for my approval of the proposed architecture before implementing the application.
+
+Keep explanations technically accurate and explain important design decisions so I can understand and defend the implementation during my coursework.
+
+Prompt 2: Approved implementation request
+I approve the proposed architecture. I have one important requirement concerning my existing app.py file.
+
+## IMPORTANT: Preserve my original planning notes
+
+My existing app.py contains my original project planning notes.
+
+I want to keep these notes as a comment header at the very top of app.py, followed by the actual Flask application implementation.
+
+Requirements:
+- Preserve every original planning note exactly as written.
+- Do not delete, rewrite, correct spelling, reorganize, or reformat my existing notes.
+- Keep the notes together at the very beginning of app.py.
+- Ensure the notes remain valid Python comments.
+- Add the actual Flask application code underneath the existing notes.
+- Do not create a separate web_app.py file. The main Flask application must be in app.py.
+
+## Project objective
+
+Develop a secure, functional web-based image steganography application using Python 3.12, Flask, and Pillow.
+
+The application must support:
+1. Encoding UTF-8 text messages into PNG images using Least Significant Bit (LSB) steganography.
+2. Downloading the resulting encoded PNG image.
+3. Uploading previously encoded PNG images.
+4. Decoding and displaying the hidden message.
+
+## Approved project structure
+
+steganography/
+    app.py                  # Original notes followed by Flask application
+    image_io.py             # Image validation and safe image loading
+    steganography.py        # LSB encoding, decoding, and capacity calculations
+    pyproject.toml
+    uv.lock
+    README.md
+    prompts.txt
+    templates/
+        index.html
+    static/
+        style.css
+        app.js
+    tests/
+        test_steganography.py
+        test_app.py
+
+## Technical requirements
+
+- Python 3.12.
+- Flask backend.
+- Pillow image processing.
+- HTML, CSS, and minimal JavaScript frontend.
+- Implement the LSB algorithm ourselves.
+- Support RGB and RGBA PNG images.
+- Preserve image dimensions and alpha-channel values exactly.
+- Process images in memory using BytesIO.
+- Support UTF-8 messages, including non-English characters.
+- Allow empty messages.
+- Reject animated PNGs and unsupported image modes.
+- Do not resize or rotate images.
+
+## Message format
+
+Use the approved 25-byte header:
+
+- 4-byte magic value.
+- 1-byte format version.
+- 4-byte big-endian payload length.
+- 16-byte SHA-256-based checksum.
+
+Embed the header followed by the UTF-8 message using the least significant bits of RGB channels, traversing pixels in row-major order and channels in R, G, B order.
+
+The checksum is for corruption detection, not authentication.
+
+Calculate available message capacity before encoding.
+
+## Security requirements
+
+- Accept PNG content only.
+- Validate actual image content instead of trusting file extensions or MIME types.
+- Maximum uploaded image size: 5 MiB.
+- Maximum width and height: 4000 pixels each.
+- Enforce a bounded multipart request size.
+- Handle malformed images safely.
+- Protect against Pillow decompression-bomb attacks.
+- Never use uploaded filenames as filesystem paths.
+- Never execute uploaded content.
+- Do not save uploaded images or extracted messages to disk.
+- Disable Flask debug mode.
+- Bind to 127.0.0.1 by default.
+- Do not enable permissive CORS.
+- Avoid exposing tracebacks or sensitive server information.
+
+Authentication is not required for the initial version because this is a local educational application.
+
+## Testing requirements
+
+Create automated tests for:
+
+- RGB and RGBA encoding/decoding.
+- Transparency preservation.
+- Non-English UTF-8 messages.
+- Empty messages.
+- Exact-capacity and oversized messages.
+- Images too small for the header.
+- Invalid and malformed PNGs.
+- Unsupported image modes.
+- Animated PNGs.
+- Missing magic headers.
+- Corrupted payloads and checksums.
+- Invalid UTF-8.
+- Upload-size and image-dimension limits.
+- Flask endpoint behavior and error handling.
+
+## Development instructions
+
+1. Inspect the existing project files before modifying anything.
+2. Preserve the original notes at the top of app.py exactly.
+3. Implement the Flask application underneath those notes.
+4. Keep image validation and steganography logic in their respective modules.
+5. Run the automated tests.
+6. Fix issues discovered during testing.
+7. Update README.md with installation, execution, usage, design decisions, and security limitations.
+8. Report all files created or modified and the test results.
+
+## Prompt documentation — prompts.txt
+
+The project must include a prompts.txt file in its root directory.
+
+Requirements:
+- Preserve the original prompts used to generate the application.
+- Document the initial architecture/planning prompt.
+- Document the implementation and code-generation prompt.
+- Document subsequent prompts used to debug, improve, test, or secure the application.
+- Append new prompts rather than overwriting previous entries.
+- Organize prompts chronologically.
+- Clearly separate each prompt with a heading and prompt number.
+- Do not rewrite or summarize the original prompts; preserve their actual wording.
+
+I will maintain this file throughout development. Do not overwrite or remove existing prompt history.
+
+Do not add audio steganography, user authentication, encryption, or unrelated features at this stage.
+
+Begin by confirming that you understand the app.py preservation requirement, then implement the application.
+
+Prompt 3: Corrected project root and implementation request
+The project location and structure have been clarified.
+
+IMPORTANT: The existing `hw6` folder IS the project root. Do not create or use a separate `steganography/` subfolder.
+
+All application files must be located directly within `hw6`, with only the necessary subdirectories for templates, static assets, and tests.
+
+Before making changes:
+
+1. Inspect all existing files in the current `hw6` workspace.
+2. Inspect the existing `app.py` and `prompts.txt`.
+3. Preserve my original planning notes at the top of `app.py` exactly as written.
+4. Preserve existing prompt history in `prompts.txt`. Append new prompts rather than overwriting existing entries.
+5. Do not access files outside the `hw6` workspace.
+
+Project requirements:
+
+- Build a web-based image steganography application using Python 3.12, Flask, and Pillow.
+- Encode UTF-8 text into PNG images using LSB steganography.
+- Allow users to download encoded PNG images.
+- Allow users to upload PNG images and decode hidden messages.
+- Support RGB and RGBA images.
+- Preserve image dimensions and alpha-channel values.
+- Process uploads in memory.
+- Implement appropriate upload validation, file-size limits, dimension limits, malformed-image handling, and decompression-bomb protections.
+- Include automated tests and a README.
+- Do not add audio steganography, authentication, or encryption.
+
+Architecture:
+
+- `app.py`: Original planning notes followed by the Flask application.
+- `image_io.py`: Image validation and safe loading.
+- `steganography.py`: Encoding, decoding, and capacity calculations.
+- `templates/index.html`
+- `static/style.css`
+- `static/app.js`
+- `tests/test_steganography.py`
+- `tests/test_app.py`
+- `README.md`
+- `prompts.txt`
+- Existing `pyproject.toml` and `uv.lock` should be preserved and updated as necessary.
+
+Use the existing Python environment and dependencies where possible.
+
+Run the tests after implementation and report the files created, modified, and test results.
+
+Do not create another project directory. Work exclusively inside the current `hw6` workspace.

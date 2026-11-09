@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image steganography</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="{{ url_for('index') }}"><span class="mark" aria-hidden="true">Q</span> Quiet Signal</a>
+    <span class="local-label"><span class="status-dot"></span> Local processing</span>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">IMAGE TOOL · PNG / UTF-8</p>
+      <h1 id="page-title">A message, <span>in plain sight.</span></h1>
+      <p class="intro-copy">Hide a short note inside the color values of a PNG, or reveal one already there.</p>
+    </section>
+
+    {% if error %}
+    <div class="notice notice-error" role="alert">{{ error }}</div>
+    {% endif %}
+    {% if message is defined %}
+    <section class="result" aria-live="polite">
+      <div class="result-heading"><span class="result-icon" aria-hidden="true">✓</span><h2>Message revealed</h2></div>
+      <pre>{{ message }}</pre>
+    </section>
+    {% endif %}
+
+    <div class="workbench">
+      <section class="panel" aria-labelledby="encode-title">
+        <div class="panel-heading">
+          <span class="step">01</span>
+          <div><p class="eyebrow">HIDE A MESSAGE</p><h2 id="encode-title">Encode</h2></div>
+        </div>
+        <form action="{{ url_for('encode') }}" method="post" enctype="multipart/form-data" data-image-form>
+          <label class="drop-zone" for="encode-image">
+            <span class="upload-mark" aria-hidden="true">↑</span>
+            <span class="drop-title" data-file-label>Choose a PNG image</span>
+            <span class="drop-caption">RGB or RGBA · up to 5 MiB · 4000 × 4000 px</span>
+          </label>
+          <input id="encode-image" name="image" type="file" accept="image/png,.png" required>
+          <label class="field-label" for="message">Your message <span>UTF-8</span></label>
+          <textarea id="message" name="message" rows="4" placeholder="Write a note…" required></textarea>
+          <button class="action-button" type="submit">Encode and download <span aria-hidden="true">↗</span></button>
+        </form>
+      </section>
+
+      <section class="panel panel-decode" aria-labelledby="decode-title">
+        <div class="panel-heading">
+          <span class="step">02</span>
+          <div><p class="eyebrow">READ A MESSAGE</p><h2 id="decode-title">Decode</h2></div>
+        </div>
+        <form action="{{ url_for('decode') }}" method="post" enctype="multipart/form-data" data-image-form>
+          <label class="drop-zone" for="decode-image">
+            <span class="upload-mark" aria-hidden="true">↑</span>
+            <span class="drop-title" data-file-label>Choose an encoded PNG</span>
+            <span class="drop-caption">The extracted text appears here on this page</span>
+          </label>
+          <input id="decode-image" name="image" type="file" accept="image/png,.png" required>
+          <div class="decode-note"><span class="note-mark" aria-hidden="true">i</span><p>Only PNGs encoded with Quiet Signal can be read. The checksum detects accidental corruption; it is not encryption.</p></div>
+          <button class="action-button button-secondary" type="submit">Reveal message <span aria-hidden="true">→</span></button>
+        </form>
+      </section>
+    </div>
+
+    <footer><span>Nothing is stored. Images stay in memory for each request.</span><span>LSB · SHA-256 checksum</span></footer>
+  </main>
+</body>
+</html>
